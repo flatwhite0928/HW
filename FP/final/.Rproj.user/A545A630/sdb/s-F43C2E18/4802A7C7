@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"Untitled\"\nauthor: \"DUONI FU\"\ndate: \"2017年12月15日\"\noutput: html_document\n---\n```{r}\nlibrary(xml2)\nlibrary(rvest)\nlibrary(httr)\nlibrary(purrr)\nlibrary(stringr)\nlibrary(dplyr)\nlibrary(tidyr)\nNBA <- read_html(\"https://en.wikipedia.org/wiki/List_of_foreign_NBA_players\")\nnba <- html_node(x=NBA, xpath='//*[@id=\"mw-content-text\"]/div/table[3]')\na=html_table(nba)\nb=as.data.frame(a[1:50,1:6])\nfor (i in 1:50){\n  if (b[i, 2]=='??') b[i, 2]=b[i, 1]\n}\n\n# then, in order to get more information, we extract players' name from the list and refer to their wiki page, output shows the first 5 links\nn=str_extract(b$Player, \".*\\\\,\\\\s[A-Z][^[A-Z]]*\")\nlastn=str_extract(n, \".*\\\\,\") %>% str_replace(\"\\\\,\", \"\")\nfirstn=str_extract(n, \"\\\\s.*\") %>% str_replace(\"\\\\s\", \"\")\nlink=paste(firstn, lastn, sep = \"_\") %>% str_replace(\"J. _Bremer\", \"J._R._Bremer\")%>% str_replace(\"Juan _S??nchez\", \"Juan_Ignacio_S??nchez\")%>% str_replace(\"Rafael_Ara??jo\", \"Rafael_Ara??jo_(basketball)\")\nlinklist=map_chr(link, ~ paste(\"https://en.wikipedia.org/wiki\", ., sep=\"/\"))\nlinklist[1:5]\n\n#with the help of link we got, we can get more information such as born, height, weight... of the players. result shows the information we get.\nget_wiki_info <- function(url){\n  wiki <- read_html(url)\n  info <- html_node(x=wiki, \".vcard\")\n  table=html_table(info, header=FALSE, fill = TRUE)\n  colnames(table) <- c(\"key\", \"value\")\n  d=data.frame(table[,1:2])\n  r=filter(d, key==\"Born\"|key== \"Listed height\"|key== \"Listed weight\"|key== \"High school\"|key== \"College\"|key== \"NBA draft\")\n  hrow=c(\"High school\", \"NA\")\n  crow=c(\"College\", \"NA\")\n  drow=c(\"NBA draft\", \"NA\")\n  if (!(\"High school\" %in% r$key)) r=rbind(r, hrow)\n  if (!(\"College\" %in% r$key)) r=rbind(r, crow)\n  if (!(\"NBA draft\" %in% r$key)) r=rbind(r, drow)\n  rr=spread(r, key = key, value = value)\n  return(rr)\n}\n\nresult=data.frame(Born=character(0), Listed_height=character(0), Listed_weight=character(0), High_school=character(0), College=character(0), NBA_draft=character(0))\nfor (i in 1:50) {\n  if (linklist[i]!=\"https://en.wikipedia.org/wiki/Ian_Lockhart\") {\n    m=get_wiki_info(linklist[i])\n    result=rbind(result, m)\n  }\n  else {\n    empty=c(\"NA\", \"NA\", \"NA\", \"NA\")\n    result=rbind(result, empty)\n  }\n}\nresult\n\n# in this part, I combine two parts of data, clean them and save them as rds\ninfo=cbind(b, result)\ninfo$Born = info$Born %>% str_replace(\"\\u00A0\", \" \") %>% str_replace(\"\\u00F1\", \"\")\ninfo$`Listed height` = info$`Listed height`  %>% str_replace_all(\"\\u00A0\", \" \")\ninfo$`Listed weight` = info$`Listed weight` %>% str_replace_all(\"\\u00A0\", \" \")\nsaveRDS(info, \"wikidata.rds\")\ninfo\n\n#finally, I provide some summary statistics of year served, weight and height\ntable(year=info$Yrs)\nweight=info$`Listed weight` %>% str_extract(\"\\\\d+\\\\slb\") %>% str_replace(\" lb\", \"\")\nweight=map_dbl(weight, ~ as.numeric(.))\nsummary(weight)\nheight=info$`Listed height` %>% str_extract(\".*m\") %>% str_extract(\".{5}m\")\ntable(height)\n```\n\n",
+    "created" : 1513396123104.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "733660662",
+    "id" : "4802A7C7",
+    "lastKnownWriteTime" : 8296874535683646303,
+    "last_content_update" : 1513396138124,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

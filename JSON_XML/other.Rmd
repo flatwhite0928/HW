@@ -1,0 +1,19 @@
+---
+title: "other api tried"
+author: "DUONI FU"
+date: "2017Äê11ÔÂ7ÈÕ"
+output: html_document
+---
+```{r}
+t=GET("https://api.nytimes.com/svc/books/v3/lists/best-sellers/history.json?api-key=0176b6d774fc4ed0ac37c86106917e78&title=mother")
+a=fromJSON(content(t, as = "text"))
+a
+p=GET("https://api.nytimes.com/svc/mostpopular/v2/mostshared/World/30.json?api-key=0176b6d774fc4ed0ac37c86106917e78")
+b=fromJSON(content(p, as = "text"))
+b
+
+#GET("http://api.openweathermap.org/pollution/v1/co/0.0,10.0/current.json?appid=de249c32b652a6e138b63f9ef566790e")
+r=GET("http://api.brewerydb.com/v2/beers/?key=2e055e98fd19e17c5277841d8564211a&format=json&styleId=1")
+pl=fromJSON(content(r, as = "text"))
+pl
+```

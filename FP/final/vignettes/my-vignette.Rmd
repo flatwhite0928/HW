@@ -1,0 +1,80 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The aim of this project is to collect the profiles of NBA players available on the wiki.
+Since it takes time to connect to websites, I only choose the first 50 NBA player on the list to shorten the time.
+It obtain information from the wikipedia, clean them, combine them, summarize them and export as rds file.
+The variables includes Name, nationality, born, year, High school, college, height, weight, NBA draft, etc.
+
+## data collection
+
+First, I collect the bacis information such as name and nationality of 50 foreign NBA players for the wikipedia page https://en.wikipedia.org/wiki/List_of_foreign_NBA_players.
+
+Then, in order to get more information, I extract players' name from the list and refer to their wiki page, output shows the first 5 links, in form of https://en.wikipedia.org/wiki/firstname_lastname, this process involves cleaning and transforming the data.
+
+With the help of link we got, we can get more information such as born, height, weight... of the players. Result shows the information I get. get_wiki_info function help me obtain and orgainze the data.
+
+Next, I combine two parts of data, clean them and save them as rds.
+
+Finally, I provide some summary statistics of year served, weight and height.
+
+## Discussion
+
+I try to find a API that I can use to find more relative data, however I fail to find a free one, that is a pity.
+
+Another thing is that I do document the package using devtools::document() but it suggests "No man pages found in package  'final' ". I successed the last time but can't try out this time, I am sorry.
+
+And since my data contains some strange names like Juan_Ignacio_Sánchez which have chracter that may not be recognized by computer, it may may go wrong on your computer. I successfully run it on my computer. So if it go wrong on your one, please let me know, I can explain.
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))

@@ -1,0 +1,91 @@
+---
+title: "Untitled"
+author: "DUONI FU"
+date: "2017Äê11ÔÂ15ÈÕ"
+output: html_document
+---
+```{r}
+library(DBI)
+library(RMySQL)
+# Connection
+witch_con <- dbConnect(RMySQL::MySQL(),
+      dbname = "witchcraft",
+      host = "tbrambor.cqejfaflibld.us-east-2.rds.amazonaws.com",
+      port = 3306,
+      user = "student",
+      password = "mds-is-fun")
+```
+## 1.
+
+```{sql connection=witch_con}
+SHOW TABLES
+```
+```{sql connection=witch_con}
+DESCRIBE accused
+```
+```{sql connection=witch_con}
+SELECT COUNT(*)
+FROM accused
+```
+```{sql connection=witch_con}
+SELECT firstname, sex, age
+FROM accused
+LIMIT 5
+```
+```{sql connection=witch_con}
+SELECT COUNT(age)
+FROM accused
+WHERE age>0
+```
+```{sql connection=witch_con}
+SELECT DISTINCT occupation
+FROM accused
+```
+## 2.
+```{sql connection=witch_con}
+SELECT DISTINCT devil_type
+FROM devilappearance
+```
+```{sql connection=witch_con}
+SELECT COUNT(devil_text)
+FROM devilappearance
+WHERE devil_text LIKE '%black%'
+```
+```{sql connection=witch_con}
+SELECT COUNT(devil_type)
+FROM devilappearance
+```
+```{sql connection=witch_con}
+SELECT COUNT(devil_type)
+FROM devilappearance
+WHERE devil_type = 'Male'
+```
+the proportion of 'male' in devil_type is ```250/396```
+```{sql connection=witch_con}
+SELECT COUNT(devil_type)
+FROM devilappearance
+WHERE devil_type LIKE '%Male%'
+```
+the proportion of male devil is ```291/396```
+I am not sure whether devil_types like 'Male Fairy' meet the requirement. So I check both of the situations.
+
+## 3.
+
+```{sql connection=witch_con}
+SELECT AVG(female_accusers), AVG(male_accusers), MAX(female_accusers), MAX(male_accusers)
+FROM trial
+```
+```{sql connection=witch_con}
+SELECT sentence, COUNT(sentence) AS 'count of diffrent sentences'
+FROM trial
+WHERE sentence LIKE '_%'
+GROUP BY sentence
+ORDER BY COUNT(sentence) DESC
+```
+```{sql connection=witch_con}
+SELECT verdict, AVG(female_accusers+male_accusers) AS 'average number of accusers for diffrent verdict'
+FROM trial
+WHERE verdict LIKE '_%'
+GROUP BY verdict
+ORDER BY AVG(female_accusers+male_accusers) DESC
+```

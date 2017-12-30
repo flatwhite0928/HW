@@ -1,0 +1,89 @@
+---
+title: "Untitled"
+author: "DUONI FU"
+date: "2017Äê11ÔÂ11ÈÕ"
+output: 
+   md_document:
+      variant: markdown_github
+   html_document: null
+---
+## 1. 2. 3.
+```{r}
+library(xml2)
+library(rvest)
+library(httr)
+library(dplyr)
+wiki <- read_html("https://en.wikipedia.org/wiki/Mitch_McConnell")
+info <- html_node(x=wiki, ".vcard")
+table=html_table(info, header=FALSE)
+colnames(table) <- c("key", "value")
+data=data.frame(table)
+result=filter(data, key=="Mitch McConnell"|key=="Political party"|key== "Children")
+result$key[1]= "Full name"
+result
+```
+## 4.
+```{r}
+get_wiki_info1 <- function(url){
+  wiki1 <- read_html(url)
+  info1 <- html_node(x=wiki1, ".vcard")
+  table1=html_table(info1, header=FALSE)
+  colnames(table1) <- c("key", "value")
+  data1=data.frame(table1)
+  name1=data1$key[1]
+  result1=filter(data1, key==name1|key=="Political party"|key== "Children")
+  result1$key[1]= "Full name"
+  return(result1)
+}
+get_wiki_info1("https://en.wikipedia.org/wiki/Jeff_Flake")
+
+get_wiki_info <- function(url){
+  wiki1 <- read_html(url)
+  info1 <- html_node(x=wiki1, ".vcard")
+  table1=html_table(info1, header=FALSE)
+  colnames(table1) <- c("key", "value")
+  data1=data.frame(table1)
+  name1=data1$key[1]
+  result1=filter(data1, key==name1|key=="Political party"|key== "Children")
+  result1$key[1]= "Full name"
+  if (!("Children" %in% result1$key)) {
+    row=c("Children", "NA")
+    result1=rbind(result1, row)
+  }
+  return(result1)
+}
+get_wiki_info("https://en.wikipedia.org/wiki/Jeff_Flake")
+get_wiki_info("https://en.wikipedia.org/wiki/Susan_Collins")
+```
+## 5.
+a).
+```{r}
+library(stringr)
+library(purrr)
+a <- read_html("https://en.wikipedia.org/wiki/Current_members_of_the_United_States_Senate")
+senator <- html_node(x=a, xpath='//*[@id="mw-content-text"]/div/table[4]')
+links=xml_find_all(senator, "//span/span/a/@href")
+link=str_extract(links, "\".*") %>% str_replace("\"", "")%>%str_replace("\"", "")
+linklist=map_chr(link, ~ paste("https://en.wikipedia.org", ., sep=""))
+linklist[1:5]
+```
+b).
+```{r}
+library(tidyr)
+result=data.frame(Full_name=character(0), Political_party=character(0), Children=character(0))
+for (i in 1:100) {
+  r=get_wiki_info(linklist[i])
+  rr=spread(r, key = key, value = value)
+  rrr=rr[,c(2,3,1)]
+  result=rbind(result, rrr)
+}
+result
+```
+```{r}
+d=str_extract(result$Children, "\\d+")
+dd=as.numeric(d)
+mean(dd, na.rm = TRUE)
+p=result$'Political party' %>% str_replace("Democratic (Before 1967)Republican (1967¨Cpresent)", "Republican") %>% str_replace("Democratic (Before 1994)Republican (1994¨Cpresent)", "Republican") %>% str_extract("[A-z]+")
+table(p)
+```
+

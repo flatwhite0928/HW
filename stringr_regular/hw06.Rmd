@@ -1,0 +1,140 @@
+---
+title: "Untitled"
+author: "DUONI FU"
+date: "10/22/2017"
+output: 
+   md_document:
+      variant: markdown_github
+   html_document: null
+---
+
+```{r, echo = FALSE, include = FALSE}
+library(gutenbergr)
+gutenberg_works(author == "Joyce, James")
+book <- gutenberg_download(4300)
+library(tidytext)
+words=unnest_tokens(book, word, text)
+```
+## 1.
+
+#### a.
+
+```{r}
+library(stringr)
+library(purrr)
+word=words$word
+containz=str_subset(word, "z")
+number_as <- str_count(containz, "z")
+table(number_as)
+contain2z=containz[str_count(containz, "z")==2]
+contain3z=containz[str_count(containz, "z")==3]
+k2=str_locate_all(contain2z, "z")
+k3=str_locate_all(contain3z, "z")
+distance2=map_dbl(k2, ~ (.[2, 1]-.[1,1]))
+distance3=map_dbl(k3, ~ max((.[2, 1]-.[1,1]), (.[3,1]-.[2,1])))
+conz=c(contain2z, contain3z)
+dis=c(distance2,distance3)
+m=max(dis)
+print(paste("the distance is", m))
+conz[dis==m]
+```
+#### b.
+```{r}
+vowel=str_subset(word, "^[aeiouAEIOU].*[aeiouAEIOU]$")
+vowel1=str_subset(word, "^[aeiouAEIOU]$")
+length(vowel)+length(vowel1)
+vowel2=str_subset(word, "^[aeiouAEIOU][aeiouAEIOU]+")
+length(vowel2)
+containv=str_subset(word, "[aeiouAEIOU]")
+t=str_extract(containv, "[aeiouAEIOU]+")
+con_vowel=str_length(t)
+#table(con_vowel)
+max=max(con_vowel)
+max
+containv[con_vowel==max]
+```
+#### c. 
+```{r}
+ie=str_extract(word, ".ie")
+ei=str_extract(word, ".ei")
+table(ie)
+#table(ei)
+print(paste("there are", length(str_subset(word, ".ie")), "words have i before e, and there are", length(str_subset(word, "cie")), "words have c before ie, which doesn't follow the rule"))
+#print(paste("there are", length(str_subset(word, ".ei")), "words have e before i, and there are", length(str_subset(word, "cei")), "words have c before ei, which follows the rule"))
+print(paste("the ratio of words follow the rule is",1-length(str_subset(word, "cie"))/length(str_subset(word, ".ie"))))
+```
+The rule seems to be correct.
+
+## 2.
+```{r}
+library(readr)
+library(ggplot2)
+data=read_csv("emergency.csv", col_names = FALSE)
+```
+#### a.
+```{r}
+emerg=data$X1
+len=str_length(emerg)
+max=max(len)
+min=min(len)
+emerg[len==min]
+emerg[len==max]
+```
+
+#### b.
+```{r}
+fracture=str_subset(emerg, "FRACTUR")
+length(fracture)
+```
+
+#### c.
+```{r}
+library(stringr)
+bodypart=str_extract(fracture, "(FINGER|THUMB|ELBOW|TOE|ANKLE|HEAD|FACE|RIB|HIP|KNEE|ARM|FOOT|HAND|SHOULDER|LEG|ORBIT|WRIST|CLAVICLE|BACK)")
+ppp=as.data.frame(bodypart)
+ggplot(ppp, aes(x=bodypart)) +  geom_bar()
+```
+
+#### d.
+```{r}
+age_g=str_extract(emerg, "(\\d)+\\s*(MO|YO|Y/O|YR|YR OLD|Y)\\s*(M|F|MALE|FEMALE|WM)")
+
+a<-function(chr){
+  if (is.na(chr)) k=NA
+  else if (grepl("M",chr)) { 
+    k=str_extract(chr, "(\\d)+")
+    k=as.numeric(k)/12}
+  else {
+    k=str_extract(chr, "(\\d)+")
+    k=as.numeric(k)}
+  return(k)
+}
+ag=map_chr(age_g, ~ str_extract(., "(\\d)+\\s*(M|Y)")) %>% map_dbl(~ a(.))
+age=ag[ag!=216]
+head(age)
+b<-function(chr){
+  if (is.na(chr)) k=NA
+  else if (grepl("(F|W)",chr)) { 
+    k="FEMALE"}
+  else k="MALE"
+  return(k)
+}
+gender=map_chr(age_g, ~ str_extract(., "(O|R|OLD|Y)\\s*(M|F|MALE|FEMALE|WM)")) %>% map_chr(~ b(.))
+gender=gender[ag!=216]
+head(gender)
+table(gender)
+
+```
+```{r}
+#library(ggplot2)
+library(dplyr)
+p=data.frame(age, gender)
+#ggplot(p, aes(x=age, y=), group=gender)+geom_line(size=2)
+male=filter(p, gender=="MALE")
+female=filter(p, gender=="FEMALE")
+ma=male$age
+fa=female$age
+plot(table(ma), type="o")
+lines(table(fa),type="o",col="red")
+```
+

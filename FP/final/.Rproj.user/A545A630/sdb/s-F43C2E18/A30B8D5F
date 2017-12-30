@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"hw07\"\nauthor: \"DUONI FU\"\ndate: \"2017年10月27日\"\noutput: \n   md_document:\n      variant: markdown_github\n   html_document: null\n---\n\n## 1.\n```{r}\nendpoint <- \"https://data.lacity.org/resource/7fvc-faax.csv\"\n```\n## 3.\n```{r}\nlibrary(httr)\nbase <- GET(endpoint)\nbase$status_code\nstr(base, max.level=1)\n```\n## 4.\n```{r}\ndata=content(base)\nprint( paste(\"there are\",dim(data)[2], \"variables(columns) and\", dim(data)[1], \"rows.\"))\ntable(data$area_name)\n```\n## 5.\n```{r}\nreq <- GET(endpoint, \"$limit\" = \"10000\", \"$$app_token\" = Sys.getenv(\"LACRIME_APP_TOKEN\"))\nreq$status_code\n```\n\n## 6.\n```{r}\nquery=GET(endpoint, \"$limit\" = \"10000\", \"$$app_token\" = Sys.getenv(\"LACRIME_APP_TOKEN\"), query=list(vict_sex=\"M\", vict_age=\"20\", time_occ=\"2300\"))\nquery$status_code\ncontent(query)[,c(2,8,10,13,26,27,28,29)]\ntable(content(query)$crm_cd_desc)\n```\nThis query selects the crime record that occurs in 23:00 and the victim is 20-year-old male. \n\n## 7.\n```{r}\nlibrary(stringr)\nk=content(query)\nlatlng <- str_extract(k$location_1, \"-\\\\d*.\\\\d*\\\\s\\\\d*.\\\\d*\")\na=str_extract(latlng, \"-\\\\d*.\\\\d*\")\nb=str_extract(latlng, \"\\\\s\\\\d*.\\\\d*\") %>% str_replace(\" \", \"\")\nfor (i in 1:50) {\n  n=GET(paste(\"https://maps.googleapis.com/maps/api/geocode/json?latlng=\", b[i], \",\", a[i],  \"&key=AIzaSyDUsAObQH4nFberx3AT2HyfciAdx4Gqq3A\", sep = \"\"))\n  if (n$status_code!=\"200\") print(paste(\"warning: the status is not GREAT, status code is\", n$status_code))\n  else\n     print(content(n)$results[[1]]$formatted_address)\n  Sys.sleep(0.1)\n}\n```\n\n\n",
+    "created" : 1513563169558.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2028288767",
+    "id" : "A30B8D5F",
+    "lastKnownWriteTime" : 1509477684,
+    "last_content_update" : 1513584382762,
+    "path" : "~/GitHub/Fu_Duoni/hw_07/hw07.Rmd",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

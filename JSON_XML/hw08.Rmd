@@ -1,0 +1,78 @@
+---
+title: "hw08"
+author: "DUONI FU"
+date: "2017Äê11ÔÂ4ÈÕ"
+output: 
+   md_document:
+      variant: markdown_github
+   html_document: null
+---
+
+## 1.
+a) OpenWeatherMap, a global geospatial platform provides earth observation data including current, historical and forcasting weather data, map layer data as well as air pollution data. The data I want to use in this assignment is the historical UV index data.
+b) OpenWeatherMap <https://openweathermap.org/api>  
+OpenWeatherMap-UV <https://openweathermap.org/api/uvi>
+c) base URL endpoint: <http://api.openweathermap.org/data/2.5/uvi/history?>
+```http://api.openweathermap.org/data/2.5/uvi/history?appid={appid}&lat={lat}&lon={lon}&cnt={cnt}&start={start}&end={end}```
+
+## 2.
+a) There are five levels of API, Free, Startup, Developer, Professional and Enterprise. The calls per minute and access to some databases are limited for free account. To get a free account, just sign up.
+b) Apply for an API key by signing up for a free account <https://home.openweathermap.org/users/sign_up>
+
+## 3.
+a) 
+```{r}
+library(httr)
+endpoint= "http://api.openweathermap.org/data/2.5/uvi/history?"
+key=Sys.getenv("OWM_APP_TOKEN")
+lat="40.0"
+lon="-74.0"
+start="1498049953"
+end="1508644800"
+url=paste(endpoint,"lat=", lat, "&lon=", lon, "&start=", start, "&end=", end, "&appid=", key, sep="")
+query=GET(url)
+```
+the parameter: lat means latitude, lon means longitude, start and end mean the starting and final point of time period in UNIX time. This query requests the UV index data from 2017/6/22 to 2017/10/22 in New York (40, -74).
+
+b) 
+```{r}
+http_status(query)
+```
+
+c) 
+```{r}
+http_type(query)
+```
+## 4.
+a) 
+```{r}
+library(jsonlite)
+data=fromJSON(url, simplifyDataFrame = TRUE)
+```
+
+b) 
+```{r}
+head(data)
+dim(data)
+summary(data$value)
+saveRDS(data, "data.rds")
+```
+## 5.
+```{r}
+GetSearchResults <- function(lat="40", lon="-74", start="1498049953", end="1508644800"){
+  library(httr)
+  endpoint= "http://api.openweathermap.org/data/2.5/uvi/history?"
+  key=Sys.getenv("OWM_APP_TOKEN")
+  url=paste(endpoint,"lat=", lat, "&lon=", lon, "&start=", start, "&end=", end, "&appid=", key, sep="")
+  query=GET(url)
+  if (http_status(query)$reason!="OK") print(http_status(query)$message)
+  else {
+    data=fromJSON(url, simplifyDataFrame = TRUE)
+    return(data)
+  }
+}
+rds=GetSearchResults()
+rds
+saveRDS(rds, "api_client_output.RDS")
+```
+

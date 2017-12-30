@@ -1,0 +1,63 @@
+---
+title: "hw02"
+author: "DUONI FU"
+date: "2017/09/22"
+output: 
+   md_document:
+      variant: markdown_github
+   html_document: null
+---
+# Selection of Data and Tidying
+```{r}
+library(readr)
+library(tidyr)
+library(dplyr)
+rawdata=read_csv("U.S._Chronic_Disease_Indicators__CDI_.csv")
+f=rawdata %>% filter((Question == "Binge drinking prevalence among adults aged >= 18 years" | Question == "Poverty") & DataValueType == "Crude Prevalence" & DataValueUnit == "%" & (StratificationCategory1 == "Gender" | StratificationCategory1 == "Overall"))
+s=f %>% select(LocationDesc, LocationAbbr, YearStart, Question, Stratification1, DataValue)
+u=s %>% unite(type, Question, Stratification1)
+k=u %>% spread(key="type", value="DataValue")
+clean=k %>% rename(state= "LocationDesc", stateabb="LocationAbbr", year="YearStart", binge_female="Binge drinking prevalence among adults aged >= 18 years_Female", binge_male="Binge drinking prevalence among adults aged >= 18 years_Male", binge_all="Binge drinking prevalence among adults aged >= 18 years_Overall", poverty= "Poverty_Overall")
+write.csv(clean,file="binge_clean.csv")
+```
+
+# Data Transformation and Summary Results
+
+### 5.
+```{r}
+library(readr)
+library(tidyr)
+library(dplyr)
+library(DT)
+
+data=read_csv("binge_clean.csv")
+sdata=data %>% select(year, state, binge_female, binge_male, binge_all)
+adata=sdata %>% arrange(desc(binge_all))
+fdata=adata %>% filter(year=="2015")
+tbl_df(fdata[1:10,])
+#View(fdata[1:10,])
+#datatable(fdata[1:10,])
+```
+
+I don't know which one is the table you required to be so I write down other two ways I find
+
+### 6.
+```{r}
+library(ggplot2)
+ggplot(data,aes(x=binge_all,y=poverty))+geom_smooth(method='loess')+geom_point(color='red')
+```
+
+It seems that in a state, higher the prevalence of binge drinking first comes with higher poverty prevalence, but when it reaches a certain prevalence, it has a converse correlation relationship with poverty. And then when prevalence of binge drinking continues to increase, poverty prevalence doesn't change any more. This may because when people are poor, they tend to drink some binge to confort themselves. However they don't have much money left for alcohol, which doesn't result in high prevalence of binge drinking. So when prevalence of binge drinking is very high, it has little relationship with poverty.  
+
+### 7.
+```{r}
+fdata=data %>% filter( binge_all!="NA")
+gdata=fdata %>% group_by(state) %>% summarize(growth=(last(binge_all, order_by=year)/first(binge_all, order_by=year)-1)/5*100, dataunit='%')
+arrangedata=gdata %>% arrange(desc(growth))
+n=nrow(arrangedata)
+tbl_df(arrangedata[c(1:5,(n-4):n),])
+#View(arrangedata[c(1:5,(n-4):n),])
+#datatable(arrangedata[c(1:5,(n-4):n),])
+```
+I don't know which one is the table you required to be so I write down other two ways I find 
+

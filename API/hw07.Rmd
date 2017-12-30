@@ -1,0 +1,57 @@
+---
+title: "hw07"
+author: "DUONI FU"
+date: "2017年10月27日"
+output: 
+   md_document:
+      variant: markdown_github
+   html_document: null
+---
+
+## 1.
+```{r}
+endpoint <- "https://data.lacity.org/resource/7fvc-faax.csv"
+```
+## 3.
+```{r}
+library(httr)
+base <- GET(endpoint)
+base$status_code
+str(base, max.level=1)
+```
+## 4.
+```{r}
+data=content(base)
+print( paste("there are",dim(data)[2], "variables(columns) and", dim(data)[1], "rows."))
+table(data$area_name)
+```
+## 5.
+```{r}
+req <- GET(endpoint, "$limit" = "10000", "$$app_token" = Sys.getenv("LACRIME_APP_TOKEN"))
+req$status_code
+```
+
+## 6.
+```{r}
+query=GET(endpoint, "$limit" = "10000", "$$app_token" = Sys.getenv("LACRIME_APP_TOKEN"), query=list(vict_sex="M", vict_age="20", time_occ="2300"))
+query$status_code
+```
+This query selects the crime record that occurs in 23:00 and the victim is 20-year-old male. 
+
+## 7.
+```{r}
+library(stringr)
+k=content(query)
+latlng <- str_extract(k$location_1, "-\\d*.\\d*\\s\\d*.\\d*")
+a=str_extract(latlng, "-\\d*.\\d*")
+b=str_extract(latlng, "\\s\\d*.\\d*") %>% str_replace(" ", "")
+for (i in 1:50) {
+  n=GET(paste("https://maps.googleapis.com/maps/api/geocode/json?latlng=", b[i], ",", a[i],  "&key=AIzaSyDUsAObQH4nFberx3AT2HyfciAdx4Gqq3A", sep = ""))
+  if (n$status_code!="200") print(paste("warning: the status is not GREAT, status code is", n$status_code))
+  else
+     print(content(n)$results[[1]]$formatted_address)
+  Sys.sleep(0.1)
+}
+```
+
+

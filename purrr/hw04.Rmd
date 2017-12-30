@@ -1,0 +1,117 @@
+---
+title: "Untitled"
+author: "DUONI FU"
+date: "10/07/2017"
+output: 
+   md_document:
+      variant: markdown_github
+   html_document: null
+---
+## 1.
+
+#### a
+
+```{r}
+library(purrr)
+content <- mget(ls("package:base"), inherits = TRUE)
+base_functions <- Filter(is.function, content)
+name=names(base_functions)
+len=map_int(name, ~ nchar(.))
+max(len)
+name[len==max(len)]
+```
+
+#### b
+
+```{r}
+library(dplyr)
+argument=map_int(base_functions, ~ length(formals(.)))
+a=argument[order(argument,decreasing=TRUE)[1:10]]
+n1=names(a)
+i=list(name=n1,length=a)
+tbl_df(i)
+```
+
+#### c
+
+```{r}
+length(argument[argument==0])
+```
+The functions have no argument are the primary functions, they do not need to input an argument to work. 
+ps: when I run this command directly in r studio, the output is 225, but when I knit to html,the output is 226. Since I use the windows system, I think it may be the problem of system or the version of R Studio. Just to aviod misunderstanding.
+
+## 2.
+
+#### a
+
+```{r}
+library(WDI)
+library(dplyr)
+wdi=WDI(country = "all", indicator = c("NY.GDP.PCAP.PP.KD","SP.DYN.IMRT.IN"),
+start = 1960, end = 2016, extra = TRUE, cache = NULL)
+data= wdi %>% select(country, year, gdpcap="NY.GDP.PCAP.PP.KD", infmort="SP.DYN.IMRT.IN", region) %>% filter(region!="Aggregates")
+sorted=data %>% filter(year=="2015",infmort!="NA") %>% arrange(desc(infmort)) %>% select(year, country, infmort, gdpcap)
+n=nrow(sorted)
+tbl_df(sorted[c(1:5,(n-4):n),])
+```
+To keep only country entries, I rule out the lines that region=Aggregates (so the lines like "world", "upper income countries" will not be kept)
+
+#### b
+
+```{r}
+reg=lm(infmort ~ gdpcap , data =data)
+reg
+library(ggplot2)
+ggplot(data,aes(x=gdpcap,y=infmort))+geom_point(color='red')+geom_smooth(method='lm')
+```
+
+The gdp per capital and the infant mortality are negatively correlated. When the gdp increase from a small value, the infant mortality decreases rapidly; when the gdp increase from a larger value, the slope becomes smaller.
+ps: since we are required to run an overall linear regression, I think the regression fit line should be a linear one as well. So I make such a plot. If we want to fit the points better, we can also use command : ggplot(data,aes(x=gdpcap,y=infmort))+geom_point(color='red')+geom_smooth()
+
+#### c
+
+```{r}
+regions <- split(data, data$region)
+fit_reg <- function(df) {
+  lm(infmort ~ gdpcap, data = df)
+}
+regions=regions[2:8]
+result=regions %>% map(fit_reg) %>% map(~ coef(.)) %>% map_dbl("gdpcap")
+result=result[order(result,decreasing=TRUE)]
+name1=names(result)
+f <- list(region=name1, coef=result)
+tbl_df(f)
+```
+
+#### d
+
+```{r}
+d=data%>% filter( infmort!="NA", gdpcap!="NA")
+countrys <- split(d, d$country)
+fit_reg <- function(df) {
+  lm(infmort ~ gdpcap, data = df)
+}
+re=countrys %>% map(fit_reg) %>% map(~ coef(.)) %>% map_dbl("gdpcap")
+n=names(re)
+positive=re[re>0]
+length(positive)/length(re)
+#walk(re, hist)
+hist(re)
+barplot(re)
+re[re==min(re)]
+```
+The slope of overall regression estimated in part (b) is -0.001005. We can see from the barplot that the most at odds is the country with the smallest slope, the abs(coef-(-0.001005)) is the largest. So it is the  Guinea.
+
+#### e
+
+```{r}
+fit_reg2 <- function(df) {
+  lm(infmort ~ gdpcap+I(gdpcap^2), data = df)
+}
+r1=countrys %>% map(fit_reg)%>%map_dbl(~ summary(.)$adj.r.squared)
+r2=countrys %>% map(fit_reg2)%>%map_dbl(~ summary(.)$adj.r.squared)
+mean(r1)
+mean(r2)
+```
+Without a added squred term, the adjusted r square is 0.667917. And with a added squred term, the adjusted r square is 0.7405935. The adjusted r square is larger in the second model, the regressions of infant mortality on GDP per capita and the square of GDP per capita. I would recommend to keep the squared term.
+

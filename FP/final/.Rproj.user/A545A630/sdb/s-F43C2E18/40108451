@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#' NBA Players's profile.\n#'\n#' @param wiki A series of websites.\n#' @return the data obtained, the summary of dat and a rds file of data \\code{info}\n#' @examples\n#' Not a function and it is weird to make it a function I think, so, no example\nlibrary(xml2)\nlibrary(rvest)\nlibrary(httr)\nlibrary(purrr)\nlibrary(stringr)\nlibrary(dplyr)\nlibrary(tidyr)\nNBA <- read_html(\"https://en.wikipedia.org/wiki/List_of_foreign_NBA_players\")\nnba <- html_node(x=NBA, xpath='//*[@id=\"mw-content-text\"]/div/table[3]')\na=html_table(nba)\nb=as.data.frame(a[1:50,1:6])\nfor (i in 1:50){\n  if (b[i, 2]=='—') b[i, 2]=b[i, 1]\n}\n\n\nn=str_extract(b$Player, \".*\\\\,\\\\s[A-Z][^[A-Z]]*\")\nlastn=str_extract(n, \".*\\\\,\") %>% str_replace(\"\\\\,\", \"\")\nfirstn=str_extract(n, \"\\\\s.*\") %>% str_replace(\"\\\\s\", \"\")\nlink=paste(firstn, lastn, sep = \"_\") %>% str_replace(\"J. _Bremer\", \"J._R._Bremer\")%>% str_replace(\"Juan _Sánchez\", \"Juan_Ignacio_Sánchez\")%>% str_replace(\"Rafael_Araújo\", \"Rafael_Araújo_(basketball)\")\nlinklist=map_chr(link, ~ paste(\"https://en.wikipedia.org/wiki\", ., sep=\"/\"))\nlinklist[1:5]\n\n\nget_wiki_info <- function(url){\n  wiki <- read_html(url)\n  info <- html_node(x=wiki, \".vcard\")\n  table=html_table(info, header=FALSE, fill = TRUE)\n  colnames(table) <- c(\"key\", \"value\")\n  d=data.frame(table[,1:2])\n  r=filter(d, key==\"Born\"|key== \"Listed height\"|key== \"Listed weight\"|key== \"High school\"|key== \"College\"|key== \"NBA draft\")\n  hrow=c(\"High school\", \"NA\")\n  crow=c(\"College\", \"NA\")\n  drow=c(\"NBA draft\", \"NA\")\n  if (!(\"High school\" %in% r$key)) r=rbind(r, hrow)\n  if (!(\"College\" %in% r$key)) r=rbind(r, crow)\n  if (!(\"NBA draft\" %in% r$key)) r=rbind(r, drow)\n  rr=spread(r, key = key, value = value)\n  return(rr)\n}\n\nresult=data.frame(Born=character(0), Listed_height=character(0), Listed_weight=character(0), High_school=character(0), College=character(0), NBA_draft=character(0))\nfor (i in 1:50) {\n  if (linklist[i]!=\"https://en.wikipedia.org/wiki/Ian_Lockhart\") {\n    m=get_wiki_info(linklist[i])\n    result=rbind(result, m)\n  }\n  else {\n    empty=c(\"NA\", \"NA\", \"NA\", \"NA\")\n    result=rbind(result, empty)\n  }\n}\nresult\n\n\ninfo=cbind(b, result)\ninfo$Born = info$Born %>% str_replace(\"\\u00A0\", \" \") %>% str_replace(\"\\u00F1\", \"\")\ninfo$`Listed height` = info$`Listed height`  %>% str_replace_all(\"\\u00A0\", \" \")\ninfo$`Listed weight` = info$`Listed weight` %>% str_replace_all(\"\\u00A0\", \" \")\nsaveRDS(info, \"wikidata.rds\")\ninfo\n\n\ntable(year=info$Yrs)\nweight=info$`Listed weight` %>% str_extract(\"\\\\d+\\\\slb\") %>% str_replace(\" lb\", \"\")\nweight=map_dbl(weight, ~ as.numeric(.))\nsummary(weight)\nheight=info$`Listed height` %>% str_extract(\".*m\") %>% str_extract(\".{5}m\")\ntable(height)\n\n",
+    "created" : 1513397008349.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1233690407",
+    "id" : "40108451",
+    "lastKnownWriteTime" : 1513398921,
+    "last_content_update" : 1513398921438,
+    "path" : "~/GitHub/Fu_Duoni/Final Project/final/R/final.R",
+    "project_path" : "R/final.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
