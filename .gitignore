@@ -1,4 +1,10 @@
-
-hw_02/U.S._Chronic_Disease_Indicators__CDI_.csv
-hw_06/emergency.csv
+*.pyc
+*~
+__pycache__
+myvenv
+db.sqlite3
+/static
+.DS_Store
+*.json
+*.xml
 *.csv
