@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>KALO rakuten recommendation</title>
+  <link rel="shortcut icon" href="http://www.iconj.com/ico/g/4/g4f7j9woyc.ico"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+  <style> 
+    .table-c table{border-right:1px solid grey;border-bottom:1px solid black}
+     
+    .table-c table td{border-left:1px solid grey;border-top:1px solid black;background:#ECF5FF}
+
+    .table-c table th{background:lightblue; font-size:15px} 
+  </style> 
+</head>
+<body>
+
+<a href="./sales"><input type="button" name="Submit" onclick="./" value='Back to start page' style="position: fixed;font-size:18px;background:#ECF5FF;border-color:lightblue;border-radius:15px;box-shadow:0 1px white inset;"></a>
+<center><p style="font-size:20px;"> User-product interaction</p></center>
+<div class="table-c"><br>
+  <table class="table table-striped table-bordered table-hover table-checkable order-column" id="sample_1">
+        <thead>
+        <tr>
+          <th> name</th>
+          <th> username</th>
+          <th> initiatorId</th>
+          <th> product_retailer</th>
+          <th> product_name</th>
+          <th> whether in wishlist</th>
+          <th> # of tap buy button</th>
+          <th> # of view product</th>
+          <th> image</th>
+        </tr>
+      </thead> 
+      <tbody>
+      </tbody>             
+      <tbody>
+        {% for event in events %}
+        <tr>
+          <td>{{ event.name }}</td>
+          <td>{{ event.username }}</td>
+          <td>{{ event.initiatorId}}</td>
+          <td>{{ event.product_retailer}}</td>
+          <td>{{ event.product_name}}</td>
+          <td>{{ event.wish_list }}</td>
+          <td>{{ event.tap_count }}</td>
+          <td>{{ event.view_count }}</td>
+          <td><img src={{ event.product_image_url}} max-width="50px" height="50px"></td>           
+        </tr>
+        {% endfor %}
+      </tbody>
+  </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>KALO rakuten recommendation</title>
+  <link rel="shortcut icon" href="http://www.iconj.com/ico/g/4/g4f7j9woyc.ico"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+  <style> 
+    .table-c table{border-right:1px solid grey;border-bottom:1px solid black}
+     
+    .table-c table td{border-left:1px solid grey;border-top:1px solid black;background:#ECF5FF}
+
+    .table-c table th{background:lightblue; font-size:15px} 
+
+  </style> 
+</head>
+<body>
+
+<a href="./sales"><input type="button" name="Submit" onclick="./" value='Back to start page' style="position: fixed;font-size:18px;background:#ECF5FF;border-color:lightblue;border-radius:15px;box-shadow:0 1px white inset;"></a>
+<a href="./event" target="_blank"><input type="button" name="Submit" value='View events' style="position: fixed;right:0;font-size:18px;background:#ECF5FF;border-color:lightblue;border-radius:15px;box-shadow:0 1px white inset;"></a>
+<a href="./coupon" target="_blank"><input type="button" name="Submit" value='View promotions' style="position: fixed;right:120px;font-size:18px;background:#ECF5FF;border-color:lightblue;border-radius:15px;box-shadow:0 1px white inset;"></a>
+<center><p style="font-size:20px;"> Recommendation based on user-product interaction</p></center>
+<div class="table-c"><br>
+  <table class="table table-striped table-bordered table-hover table-checkable order-column" id="sample_1">
+      <thead>
+      <tr>
+        <th> initiatorId</th>
+        <th> message</th>
+        <th> advertisername</th>
+        <th> offerdescription</th>
+        <th> name</th>
+        <th> username</th>
+      </tr>
+    </thead> 
+    <tbody>
+    </tbody>             
+    <tbody>
+      {% for re in recommendation %}
+      <tr class="odd gradeX">
+        <td>{{ re.initiatorId}}</td>
+        <td>{{ re.message }}</td>
+        <td>{{ re.product_retailer }}</td>
+        <td>{{ re.offerdescription }}</td>
+        <td>{{ re.name }}</td>
+        <td>{{ re.username }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

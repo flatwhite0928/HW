@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>KALO rakuten recommendation</title>
+  <link rel="shortcut icon" href="http://www.iconj.com/ico/g/4/g4f7j9woyc.ico"/>
+  <style> 
+    .table-c table{border-right:1px solid grey;border-bottom:1px solid black}
+     
+    .table-c table td{border-left:1px solid grey;border-top:1px solid black;background:#ECF5FF}
+
+    .table-c table th{background:lightblue; font-size:15px} 
+  </style> 
+</head>
+
+<body>
+  <a href="./sales"><input type="button" name="Submit" onclick="./" value='Back to start page' style="position: fixed;font-size:18px;background:#ECF5FF;border-color:lightblue;border-radius:15px;box-shadow:0 1px white inset;"></a>
+  <center><p style="font-size:20px;"> Rakuten promotions</p></center>
+  <div class="table-c"> <br>
+    <table class="table table-striped table-bordered table-hover table-checkable order-column" id="sample_1">
+          <thead>
+          <tr>
+              <th> advertisername</th>
+              <th> category</th>
+              <th> promotiontype1</th>
+              <th> promotiontype2</th>
+              <th> promotiontype3</th>
+              <th> offerdescription</th>
+              <th> offerstartdate</th>
+              <th> offerenddate</th>
+              <th> advertiserid</th>
+              <th> days_left</th>
+          </tr>
+        </thead> 
+        <tbody>
+        </tbody>             
+        <tbody>
+          {% for coupon in coupons %}
+          <tr>
+            <td>{{ coupon.advertisername }}</td>
+            <td>{{ coupon.category1 }}</td>
+            <td>{{ coupon.promotiontype1}}</td>
+            <td>{{ coupon.promotiontype2}}</td>
+            <td>{{ coupon.promotiontype3}}</td>
+            <td>{{ coupon.offerdescription}}</td>
+            <td>{{ coupon.offerstartdate }}</td>
+            <td>{{ coupon.offerenddate }}</td>
+            <td>{{ coupon.advertiserid }}</td>
+            <td>{{ coupon.days_left}}</td>           
+          </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+  </div>
+</body>
+</html>
